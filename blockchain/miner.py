@@ -24,8 +24,16 @@ def proof_of_work(last_proof):
     start = timer()
 
     print("Searching for next proof")
-    proof = 0
+    # proof = 0
     #  TODO: Your code here
+
+    last_proof = f"{last_proof}".encode()
+    last_proof_hash = hashlib.sha256(last_proof).hexdigest()
+
+    proof = int(last_proof_hash, 16) + 1
+
+    while valid_proof(last_proof_hash,  proof) is False:
+        proof += 1
 
     print("Proof found: " + str(proof) + " in " + str(timer() - start))
     return proof
@@ -40,7 +48,14 @@ def valid_proof(last_hash, proof):
     """
 
     # TODO: Your code here!
-    pass
+
+    proof = f"{proof}".encode()
+    proof_hash = hashlib.sha256(proof).hexdigest()
+
+    if last_hash[-6:] != proof_hash[:6]:
+        return False
+    else:
+        return True
 
 
 if __name__ == '__main__':
@@ -70,6 +85,8 @@ if __name__ == '__main__':
 
         post_data = {"proof": new_proof,
                      "id": id}
+
+        print(post_data)
 
         r = requests.post(url=node + "/mine", json=post_data)
         data = r.json()
